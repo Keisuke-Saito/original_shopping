@@ -12,7 +12,7 @@ class UserDelete extends \Bbs\Controller {
       // バリデーション
       if (!isset($_POST['token']) || $_POST['token'] !== $_SESSION['token']) {
         echo "不正なトークンです!";
-        exit;
+        exit();
       }
 
     $userModel = new \Bbs\Model\User();

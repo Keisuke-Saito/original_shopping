@@ -2,8 +2,8 @@
 require_once(__DIR__ .'/header.php');
 $app = new Bbs\Controller\UserUpdate();
 $app->run();
-var_dump($app);
-exit();
+// var_dump($app);
+// exit();
 ?>
 <h1 class="page__ttl">マイページ</h1>
 <div class="container">
@@ -35,10 +35,16 @@ exit();
           </span>
           </label>
           <div class="imgfile">
-            <img src="<?= isset($app->getValues()->image) ? './gazou/'. h($app->getValues()->image) : './asset/img/noimage.png'; ?>" alt="">
+            <img src="<?= !empty($app->getValues()->image) ? './gazou/'. h($app->getValues()->image) : './asset/img/noimage.png'; ?>" alt="">
           </div>
         </div>
       </div>
+      <?php if(!empty($_SESSION['me']->image)) { ?>
+          <div class="form-group">
+            <button name="img_delete" onclick="document.getElementById('userupdate').submit();">ユーザー画像削除</button>
+            <input type="hidden" name="token" value="<?= h($_SESSION['token']); ?>">
+          </div>
+        <?php } ?>
     </div>
   </form>
   <form class="user-delete" action="user_delete_confirm.php" method="post">

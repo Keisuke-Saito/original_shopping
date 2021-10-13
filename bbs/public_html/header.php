@@ -44,7 +44,7 @@ require_once(__DIR__ .'/../config/config.php');
           <span class="name"><?= h($_SESSION['me']->username); ?></span>
           <span class="image">
             <?php
-            if(isset($_SESSION['me']->image)): ?>
+            if(!empty($_SESSION['me']->image)): ?>
               <img src="<?= SITE_URL; ?>/gazou/<?= h($_SESSION['me']->image); ?>" alt="">
             <?php else: ?>
               <img src="<?= SITE_URL; ?>/asset/img/noimage.png" alt="">

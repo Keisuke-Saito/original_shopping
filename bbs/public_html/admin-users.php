@@ -3,11 +3,9 @@ require_once(__DIR__ .'/header.php');
 $app = new Bbs\Controller\UserManagement();
 $app->run();
 $users = $app->getUsersAll();
-// var_dump($users);
-// exit();
 ?>
 <h1 class="page__ttl">ユーザーテーブル管理画面</h1>
-<form action="signup-users.php" class="form-group">
+<form action="new-create-user.php" class="form-group">
   <div class="form-group">
     <input type="submit" value="新規登録画面へ" class="btn btn-primary">
   </div>
@@ -26,29 +24,32 @@ $users = $app->getUsersAll();
       </tr>
       <?php foreach($users as $user): ?>
         <tr>
-          <td><input type="radio">
+          <td><input type="radio" name="data" value="<?= h($user->id); ?>">
             <td><?= h($user->id); ?></td>
             <td>
-              <input type="text" name="username" value="<?= h($user->username); ?>">
+              <input type="text" name="username<?= h($user->id); ?>" value="<?= h($user->username); ?>">
             </td>
             <td>
-              <input type="text" name="email" value="<?= h($user->email); ?>">
+              <input type="text" name="email<?= h($user->id); ?>" value="<?= h($user->email); ?>">
             </td>
             <td>
-              <input type="text" name="image" value="<?= h($user->image); ?>">
+              <input type="text" name="image<?= h($user->id); ?>" value="<?= h($user->image); ?>">
             </td>
             <td>
-              <input type="text" name="authority" value="<?= h($user->authority); ?>">
+              <input type="text" name="authority<?= h($user->id); ?>" value="<?= h($user->authority); ?>">
             </td>
             <td>
-              <input type="text" name="delflag" value="<?= h($user->delflag); ?>">
+              <input type="text" name="delflag<?= h($user->id); ?>" value="<?= h($user->delflag); ?>">
             </td>
           </td>
         </tr>
       <?php endforeach; ?>
     </table>
+    <p class="err"><?= h($app->getErrors('data')); ?></p>
+    <p class="err"><?= h($app->getErrors('email')); ?></p>
     <div class="form-group">
-      <button class="btn btn-primary" onclick="document.getElementById('useredit').submit();">更新</button>
+      <button class="btn btn-primary" name="update" onclick="document.getElementById('useredit').submit();">更新</button>
+      <button class="btn btn-primary" name="delete" onclick="document.getElementById('useredit').submit();">削除</button>
       <input type="hidden" name="token" value="<?= h($_SESSION['token']); ?>">
     </div>
   </form>

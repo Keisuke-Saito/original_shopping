@@ -44,7 +44,7 @@ class User extends \Bbs\Model {
 // パスワードのハッシュ化（暗号化）にはPHPのpassword_hash関数を使うと簡単に暗号化できる。
 
   public function find($id) {
-    $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :id;");
+    $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :id");
     $stmt->bindValue('id',$id);
     $stmt->execute();
     $stmt->setFetchMode(\PDO::FETCH_CLASS, 'stdClass');
@@ -54,10 +54,10 @@ class User extends \Bbs\Model {
 
   public function update($values) {
     $stmt = $this->db->prepare("UPDATE users SET username = :username,email = :email, image = :image, modified = now() where id = :id");
-    $stmt->execute([
+    $res = $stmt->execute([
       ':username' => $values['username'],
       ':email' => $values['email'],
-      'image' => $values['userimg'],
+      ':image' => $values['userimg'],
       ':id' => $_SESSION['me']->id,
     ]);
     if ($res === false) {
@@ -67,10 +67,19 @@ class User extends \Bbs\Model {
 
 
   public function delete() {
-    $stmt = $this->db->prepare("UPDATE users SET delflag = :delflag,modified = now() where id = :id");
+    $stmt = $this->db->prepare("UPDATE users SET delflag = :delflag, modified = now() where id = :id");
     $stmt->execute([
       ':delflag' => 1,
       ':id' => $_SESSION['me']->id,
+    ]);
+  }
+
+  // マイページでのユーザー画像削除
+  public function clearImg($values) {
+    $stmt = $this->db->prepare("UPDATE users SET image = :image, modified = now() where id = :id");
+    $stmt->execute([
+      ':image' => $values['noimage'],
+      ':id' => $values['id'],
     ]);
   }
 
@@ -80,15 +89,42 @@ class User extends \Bbs\Model {
     return $stmt->fetchAll(\PDO::FETCH_OBJ);
   }
 
+  // 管理者画面でのユーザー情報更新
   public function userUpdate($values) {
     $stmt = $this->db->prepare("UPDATE users SET username = :username, email = :email, image = :image, authority = :authority, delflag = :delflag where id = :id");
-    $stmt->execute([
+    $res = $stmt->execute([
       ':username' => $values['username'],
       ':email' => $values['email'],
       ':image' => $values['image'],
       ':authority' => $values['authority'],
       ':delflag' => $values['delflag'],
-      ':id' => $_SESSION['me']->id,
+      ':id' => $values['id'],
+    ]);
+    if ($res === false) {
+      throw new \Bbs\Exception\DuplicateEmail();
+    }
+  }
+
+  // 管理者画面でのユーザー削除
+  public function clear($id) {
+    $stmt = $this->db->prepare("DELETE FROM users WHERE id = :id");
+    $stmt->execute([
+      ':id' => $id
+    ]);
+  }
+
+  // 管理者画面でのユーザー新規登録
+  public function createUser($values) {
+    // var_dump($values);
+    // exit();
+    $stmt = $this->db->prepare("INSERT INTO users (username,password,email,image,authority,delflag,created,modified) VALUES (:username,:password,:email,:image,:authority,:delflag,now(),now())");
+    $res = $stmt->execute([
+      ':username' => $values['username'],
+      ':password' => password_hash($values['password'],PASSWORD_DEFAULT),
+      ':email' => $values['email'],
+      ':image' => $values['image'],
+      ':authority' => $values['authority'],
+      ':delflag' => $values['delflag']
     ]);
     if ($res === false) {
       throw new \Bbs\Exception\DuplicateEmail();

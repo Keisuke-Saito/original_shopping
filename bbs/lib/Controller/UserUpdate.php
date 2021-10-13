@@ -4,8 +4,9 @@ class UserUpdate extends \Bbs\Controller {
   public function run() {
     $this->showUser();
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      // var_dump($_FILES['image']);
-      // exit;
+      if (isset($_POST['img_delete'])) {
+        $this->imageDelete();
+      }
       $this->updateUser();
     }
   }
@@ -13,8 +14,6 @@ class UserUpdate extends \Bbs\Controller {
   protected function showUser() {
     $user = new \Bbs\Model\User();
     $userData = $user->find($_SESSION['me']->id);
-    // var_dump($userData);
-    // exit();
     $this->setValues('username', $userData->username);
     $this->setValues('email', $userData->email);
     $this->setValues('image', $userData->image);
@@ -66,6 +65,19 @@ class UserUpdate extends \Bbs\Controller {
       }
     }
     $_SESSION['me']->username = $_POST['username'];
+    header('Location: '. SITE_URL . '/mypage.php');
+    exit();
+  }
+
+  public function imageDelete() {
+    $old_img = $_POST['old_image'];
+    $userImg = new \Bbs\Model\User();
+    unlink('./gazou/' .$old_img);
+    $userImg->clearImg([
+      'noimage' => '',
+      'id' => $_SESSION['me']->id
+    ]);
+    $_SESSION['me']->image = '';
     header('Location: '. SITE_URL . '/mypage.php');
     exit();
   }
